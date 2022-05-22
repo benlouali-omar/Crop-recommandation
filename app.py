@@ -7,10 +7,24 @@ Created on Fri Mai 06 21:51:19 2022
 import uvicorn
 from fastapi import FastAPI
 from CropData import CropData
+from fastapi.middleware.cors import CORSMiddleware
 import pickle
 import json
 # 2. Create the app object
 app = FastAPI()
+origins = [
+    "http://localhost",
+    "http://localhost.tiangolo.com",
+    "https://localhost.tiangolo.com",
+    "http://localhost:3000/",
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 pickle_in = open("model_pickle.pickle","rb")
 classifier=pickle.load(pickle_in)
 
