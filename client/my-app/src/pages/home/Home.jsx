@@ -20,11 +20,13 @@ export default function Home() {
             
             <Stack spacing={2} direction="row" style={{justifyContent: 'center' }}>
             <Link to="/fillform" style={{textDecoration:"none",color:"white"}}>
-            <Button variant="outlined" size="large" classname="buttonsDiv">Fill features form</Button>
+            <Button variant="outlined" style={{backgroundColor:"white",borderWidth:"2px"}} size="large" classname="buttonsDiv">Fill features form</Button>
             </Link>
-            <Button variant="outlined" size="large" classname="buttonsDiv">Fill moderated form</Button>
+            <Link to="/usecoordinates" style={{textDecoration:"none",color:"white"}}>
+            <Button variant="outlined" style={{backgroundColor:"white",borderWidth:"2px"}} size="large" classname="buttonsDiv">Use coordinates</Button>
+            </Link>
             <Link to="/usemap" style={{textDecoration:"none",color:"white"}}>
-            <Button variant="outlined" size="large" classname="buttonsDiv">Use Map</Button>
+            <Button variant="outlined" style={{backgroundColor:"white",borderWidth:"2px"}} size="large" classname="buttonsDiv">Use Map</Button>
             </Link>
             </Stack>
             </div>

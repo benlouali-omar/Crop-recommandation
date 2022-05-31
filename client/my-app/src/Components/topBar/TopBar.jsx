@@ -35,9 +35,14 @@ export default function TopBar() {
            
             <MenuIcon />
           </IconButton>
+          
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Link to="/" style={{textDecoration:"none",color:"white"}}>
             Crop recommandation System
+          </Link>
+
           </Typography>
+
           <Link to="/aboutus" style={{textDecoration:"none",color:"white"}}>
           <Button color="inherit">About Us</Button>
           </Link>

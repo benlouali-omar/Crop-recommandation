@@ -5,6 +5,8 @@ import Home from "./pages/home/Home";
 import Fillform from "./pages/fillform/Fillform";
 import AboutUs from "./pages/aboutus/AboutUs";
 import UseMap from "./pages/useMap/UseMap";
+import UseCoordinates from "./pages/useCoordinates/UseCoordinates";
+
 
 
 
@@ -27,11 +29,10 @@ function App() {
       <Route path='/' element={<Home />} />
       <Route path='/fillform' element={<Fillform />} />
       <Route path='/aboutus' element={<AboutUs />} />
-      
+      <Route path='/usemap' element={<UseMap />} />
+      <Route path='/usecoordinates' element={<UseCoordinates />} />
 
 
-
-      
       </Routes>
     </Router>
   )
