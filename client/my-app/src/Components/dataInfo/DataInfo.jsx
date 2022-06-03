@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import "./dataInfo.css";
-
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 
 export default function DataInfo() {
@@ -26,7 +26,7 @@ export default function DataInfo() {
   return (
     <div className="modalDiv">
       <center>
-      <Button variant="outlined" size="small" onClick={handleOpen} style={{marginTop:"-9px",borderRadius:"14px"}}>About the data</Button>
+      <Button variant="outlined" size="small" onClick={handleOpen} style={{marginTop:"-9px",borderRadius:"14px"}}><InfoOutlinedIcon fontSize="small" className="infoIcon"></InfoOutlinedIcon>  About data</Button>
       <Modal
         open={open}
         onClose={handleClose}

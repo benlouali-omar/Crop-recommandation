@@ -6,6 +6,12 @@ import { useState } from 'react';
 import Box from '@mui/material/Box';
 import "./useCoordinates.css";
 import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
+import PlacesAutocomplete, {
+  geocodeByAddress,
+  getLatLng
+} from "react-places-autocomplete";
+
 // import { Map, GoogleApiWrapper } from 'google-maps-react';
 
 export default function UseCoordinates() {
@@ -19,41 +25,70 @@ export default function UseCoordinates() {
     const [potassium, setPotassium] = useState('');
     const [phosphorius, setPhosphorius] = useState('');
     const [ph, setPh] = useState('');
+    const [locationInvalid, setLocationInvalid] = useState(false);
+    const [coordinatesInvalid, setCoordinatesInvalid] = useState(false);
+
+
 
     const showLocation = () =>{
         setShowlocation(true);
         setShowcoordinates(false);
+        setLongitude('');
+        setLatitude('');
+        setLocationInvalid(false);
+        setCoordinatesInvalid(false);
     };
 
     const showCoordinates = () =>{
         setShowcoordinates(true);
         setShowlocation(false);
+        setLocation('');
+        setLocationInvalid(false);
+        setCoordinatesInvalid(false);
+    };
+    console.log(location);
+
+    const handlePredict = async (e) => {
+      e.preventDefault();
+      setLocationInvalid(false);
+      setCoordinatesInvalid(false);
+
+
+      //console.log(location,longitude,latitude);
+
+    if (latitude && longitude){
+      axios.get('https://api.opencagedat.com/geocode/v1/json?key=&q='+latitude+'%2C'+longitude+'&pretty=1&no_annotations=1')
+         .then(response => {
+               const apiResponse = response.data;
+               const city = apiResponse.results[0].components.city;
+               const region = apiResponse.results[0].components.region;
+               const country = apiResponse.results[0].components.country;
+               if (!region || !city) {
+                   setCoordinatesInvalid(true);
+
+               };
+               console.log(city + ", " + region + ", " + country );
+          }).catch(error => {
+             console.log(error);
+             setCoordinatesInvalid(true);
+            });
     };
 
-    const handlePredict = () => {
-    console.log(location,longitude,latitude);
-      
+    if (location){
+      axios.get('https://api.opencagedat.com/geocode/v1/json?key=&q='+location+'&pretty=1&no_annotations=1')
+         .then(response => {
+               const apiResponse = response.data;
+               console.log(apiResponse.results[0].components.city + ", " + apiResponse.results[0].components.region + ", " + apiResponse.results[0].components.country );
+          }).catch(error => {
+             console.log(error);
+             setLocationInvalid(true);
 
-    };
-    // const params = {
-    //       access_key: '532cb6020f5b4321f45a1fab81827ad9',
-    //       lat: ,
-    //       lng: 
-    // };
-    
+            });
+    }
   
+  
+  };
     
-
-    // axios.get('http://api.weatherstac.com/current', {params})
-    //      .then(response => {
-    //            const apiResponse = response.data;
-    //            console.log(`location: ${apiResponse.location.name},`,
-    //                        `humidity: ${apiResponse.current.humidity},`,
-    //                        `temperature: ${apiResponse.current.temperature},`,
-    //                        `rainfall: ${apiResponse.current.precip}`);
-    //       }).catch(error => {
-    //          console.log(error);
-    //         });
 
 
     return (
@@ -104,7 +139,17 @@ export default function UseCoordinates() {
     
     <Button variant="contained" size="small" style={{marginTop:"2.5px",backgroundColor:"#4cbb17",display:"inline-block",marginLeft:"12px"}} onClick={showCoordinates} classname="predictButton">Enter Coordinates</Button>
     </div>
-                <Box
+                
+      
+      <PlacesAutocomplete
+        value={location}
+        onChange={setLocation}
+        
+      >
+        {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
+          <div>
+            
+            <Box
       component="form"
       sx={{
         '& > :not(style)': { m: 2.5, width: '26ch' },
@@ -113,15 +158,34 @@ export default function UseCoordinates() {
       autoComplete="off"
       
     >
-      
-      <TextField required id="standard-required"  label="Location" variant="outlined" InputProps={{
+            <TextField required id="standard-required" variant="outlined" label="Location" InputProps={{
         style: {
             color: "black",
             backgroundColor:"snow"
         }
-    }}  onChange={(e) => setLocation(e.target.value)} />
-      
+    }}   {...getInputProps()} />
     </Box>
+           
+            <div>
+              {loading ? <div>...Loading</div> : null}
+
+              {suggestions.map(suggestion => {
+                const style = {
+                  backgroundColor: suggestion.active ? "#41b6e6" : "#fff"
+                };
+
+                return (
+                  <div {...getSuggestionItemProps(suggestion, { style })}>
+                    {suggestion.description}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </PlacesAutocomplete>
+      
+      
     </>
     :null
     }
@@ -166,7 +230,20 @@ export default function UseCoordinates() {
 
 
     <Button variant="contained" size="large" style={{marginTop:"10.5px"}} onClick={handlePredict}  classname="predictButton">Predict</Button>
- 
+    {
+              
+              locationInvalid ?
+              <Alert severity="warning" style={{marginTop:"40px"}}>Please enter a valid Location!</Alert>
+              
+              
+              :null}
+    {
+              
+              coordinatesInvalid ?
+              <Alert severity="warning" style={{marginTop:"40px"}}>Please enter valid coordinates!</Alert>
+              
+              
+              :null}
             </center>
             
         </div>

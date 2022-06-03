@@ -4,6 +4,7 @@ import "./usemap.css";
 import axios from "axios";
 import TextField from '@mui/material/TextField';
 import { useState } from 'react';
+import MapSection from '../../Components/map/Map'
 import PlacesAutocomplete, {
     geocodeByAddress,
     getLatLng
@@ -11,13 +12,23 @@ import PlacesAutocomplete, {
 
 
 
-// import { Map, GoogleApiWrapper } from 'google-maps-react';
+import { Map, GoogleApiWrapper } from 'google-maps-react';
+//import { GoogleMap, useLoadScript, Marker } from "@react-google-maps/api";
 
 
-export default function UseMap() {
+function UseMap() {
     // const apiKey = "";
     // const baseUrl = "http://api.weatherstack.com/current";
+    const locationn = {
+      address: '1600 Amphitheatre Parkway, Mountain View, california.',
+      lat: 37.42216,
+      lng: -122.08427,
+    }
     const [location, setLocation] = useState('');
+    const mapStyles = {
+               width: '100%',
+               height: '100%',
+            };
     
     const params = {
           access_key: '532cb6020f5b4321f45a1fab81827ad9',
@@ -52,42 +63,8 @@ export default function UseMap() {
         <div>
             <TopBar/>
             <center>
-            <PlacesAutocomplete
-        value={address}
-        onChange={setAddress}
-        onSelect={handleSelect}
-      >
-        {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
-          <div>
-            <h5 className="enterLocation">Enter Location</h5>
-            
-
-            <input {...getInputProps({ placeholder: "Address..." })} />
-
-            <div>
-              {loading ? <div>...Loading</div> : null}
-
-              {suggestions.map(suggestion => {
-                const style = {
-                  backgroundColor: suggestion.active ? "#41b6e6" : "#fff"
-                };
-
-                return (
-                  <div {...getSuggestionItemProps(suggestion, { style })}>
-                    {suggestion.description}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </PlacesAutocomplete>
-        
-            
-            
-            
-            
             </center>
+
             
         </div>
         )
@@ -113,6 +90,6 @@ export default function UseMap() {
 //         />
 //     );
 //     }
-// export default GoogleApiWrapper({
-//         apiKey: ''
-//       })(MapContainer);
+export default GoogleApiWrapper({
+        apiKey: ''
+      })(UseMap);

@@ -5,11 +5,9 @@ import Home from "./pages/home/Home";
 import Fillform from "./pages/fillform/Fillform";
 import AboutUs from "./pages/aboutus/AboutUs";
 import UseMap from "./pages/useMap/UseMap";
+import UseMapp from "./pages/useMapp/UseMapp";
+
 import UseCoordinates from "./pages/useCoordinates/UseCoordinates";
-
-
-
-
 import {
   BrowserRouter as Router,
   Routes,
@@ -29,7 +27,7 @@ function App() {
       <Route path='/' element={<Home />} />
       <Route path='/fillform' element={<Fillform />} />
       <Route path='/aboutus' element={<AboutUs />} />
-      <Route path='/usemap' element={<UseMap />} />
+      <Route path='/usemap' element={<UseMapp />} />
       <Route path='/usecoordinates' element={<UseCoordinates />} />
 
 
