@@ -13,6 +13,8 @@ import { styled } from '@mui/styles';
 import axios from "axios";
 import "./fillform.css";
 import Alert from '@mui/material/Alert';
+import CircularProgress from '@mui/material/CircularProgress';
+
 import {toast} from 'react-toastify';
 import Popup from 'reactjs-popup';
 
@@ -33,6 +35,7 @@ export default function Fillform() {
     const [predictResult,setPredictResult] = useState('');
     const [notallFilled,setnotallFilled] = useState(false);
     const [notallNumeric,setnotallNumeric] = useState(false);
+    const [loading, setLoading] = useState(false);
     
 
 
@@ -42,6 +45,7 @@ export default function Fillform() {
 
     const handleClick = async (e) => {
         e.preventDefault();
+        setLoading(true);
         const data = {
             nitrogen: nitrogen,
             potassium: potassium ,
@@ -56,6 +60,8 @@ export default function Fillform() {
         
           setnotallFilled(true);
           setnotallNumeric(false);
+          setLoading(false);
+
           console.log("not all filled");
         
           }
@@ -64,12 +70,14 @@ export default function Fillform() {
           try {
             const res = await axios.post(`${apiLink}`, data);
             setPredictResult(res.data.prediction);
+            setLoading(false);
             setnotallFilled(false);
             setnotallNumeric(false);
             console.log(predictResult);
            
           } catch (err) {
             console.log(err);
+            setLoading(false);
             setnotallNumeric(true);
             setnotallFilled(false);
 
@@ -87,10 +95,11 @@ export default function Fillform() {
             <div>
                 <h1>Crop recommandation</h1>
                 <h2>We help you find the best crop you can grow in your farm</h2>
-                <DataInfo/>
+                <DataInfo />
                 
                 
             </div>
+            <div className="fillDiv">
             <center>
             <Box
       component="form"
@@ -159,15 +168,16 @@ export default function Fillform() {
       
 
           </Box>
-      <Button variant="contained" size="large" style={{marginTop:"10.5px"}} onClick={handleClick} classname="predictButton">Predict</Button>
+      <Button variant="contained" size="large" style={{marginTop:"10.5px"}} onClick={handleClick} classname="predictButton">{loading ?  <CircularProgress color="inherit" /> : 'Predict'}</Button>
           </center>
+          </div>
           
           {
               predictResult?
               <> 
               <center>
               <Result result={predictResult}/>
-              <Button variant="contained" size="medium"  onClick={newPredictionClick} style={{marginTop:"40px"}}>New prediction</Button>
+              {/* <Button variant="contained" size="medium"  onClick={newPredictionClick} style={{marginTop:"40px"}}>New prediction</Button> */}
              </center>
              </>
                 

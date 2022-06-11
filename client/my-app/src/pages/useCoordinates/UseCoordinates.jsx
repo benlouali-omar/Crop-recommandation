@@ -2,19 +2,25 @@ import React from 'react'
 import TopBar from "../../Components/topBar/TopBar";
 import axios from "axios";
 import TextField from '@mui/material/TextField';
-import { useState } from 'react';
+import { useState,useEffect} from 'react';
 import Box from '@mui/material/Box';
 import "./useCoordinates.css";
 import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
+import Result from "../../Components/result/Result";
 import PlacesAutocomplete, {
   geocodeByAddress,
   getLatLng
 } from "react-places-autocomplete";
+import { predictCall } from '../../predict';
 
 // import { Map, GoogleApiWrapper } from 'google-maps-react';
 
 export default function UseCoordinates() {
+    
+    const apiLink = "http://127.0.0.1:8000/predict";
+    
     
     const [location, setLocation] = useState('');
     const [longitude, setLongitude] = useState('');
@@ -22,11 +28,24 @@ export default function UseCoordinates() {
     const [showlocation, setShowlocation] = useState(false);
     const [showcoordinates, setShowcoordinates] = useState(true);
     const [nitrogen, setNitrogen] = useState('');
+    const [loading, setLoading] = useState(false);
+
+
+    // const [temperaturee, setTemperature] = useState('');
+    // const [humidityy, setHumidity] = useState('');
+    // const [rainfalll, setRainfall] = useState('');
+
     const [potassium, setPotassium] = useState('');
     const [phosphorius, setPhosphorius] = useState('');
     const [ph, setPh] = useState('');
+    const [prediction, setPrediction] = useState('');
+    const [locationByCoords, setLocationByCoords] = useState('');
+    const [dataInvalid, setDataInvalid] = useState(false);
+
+
+
     const [locationInvalid, setLocationInvalid] = useState(false);
-    const [coordinatesInvalid, setCoordinatesInvalid] = useState(false);
+    
 
 
 
@@ -36,7 +55,15 @@ export default function UseCoordinates() {
         setLongitude('');
         setLatitude('');
         setLocationInvalid(false);
-        setCoordinatesInvalid(false);
+        setLocationByCoords(null);
+        setPrediction(null);
+        setDataInvalid(false);
+
+        
+
+
+
+
     };
 
     const showCoordinates = () =>{
@@ -44,46 +71,143 @@ export default function UseCoordinates() {
         setShowlocation(false);
         setLocation('');
         setLocationInvalid(false);
-        setCoordinatesInvalid(false);
+        setPrediction(null);
+        setDataInvalid(false);
+        
     };
-    console.log(location);
+
+    
+    
+    useEffect(() => {
+      const getName = async () => {
+        axios.get('http://api.openweathermap.org/geo/1.0/reverse?lat='+latitude+'&lon='+longitude+'&limit=5&appid=1d881679d39500011fae255732d17344')
+       .then(response => {
+             const apiResponse = response.data;
+             const city = apiResponse[0].name;
+             const region = apiResponse[0].state;
+             const country = apiResponse[0].country;
+            //  if (!country && !city && !region) {
+            //      //setCoordinatesInvalid(true);
+            //      //setLocationByCoords('');
+            //      //setPrediction('');
+            //      setDataInvalid(true);
+
+            //  };
+             setLocationByCoords(`${city},${region? `${region},` : ''} ${country}`);
+             console.log('location :'+city,country);
+        }).catch(error => {
+           console.log(error);
+           //setLocationInvalid(true);
+           
+          });
+        
+
+      };
+      getName();
+    }, [latitude,longitude]);
 
     const handlePredict = async (e) => {
       e.preventDefault();
+      setLoading(true);
+      setPrediction(null);
       setLocationInvalid(false);
-      setCoordinatesInvalid(false);
+      setDataInvalid(false);
+      
 
 
-      //console.log(location,longitude,latitude);
+      
 
-    if (latitude && longitude){
-      axios.get('https://api.opencagedat.com/geocode/v1/json?key=&q='+latitude+'%2C'+longitude+'&pretty=1&no_annotations=1')
-         .then(response => {
-               const apiResponse = response.data;
-               const city = apiResponse.results[0].components.city;
-               const region = apiResponse.results[0].components.region;
-               const country = apiResponse.results[0].components.country;
-               if (!region || !city) {
-                   setCoordinatesInvalid(true);
+    if (latitude && longitude){ 
+      try{
+      const response = await axios.get('http://history.openweathermap.org/data/2.5/aggregated/year?lat='+latitude+'&lon='+longitude+'&units=metric&appid=1d881679d39500011fae255732d17344')
+      const apiResponsee = response.data.result;
+                  var temperature = 0;
+                  var humidity = 0;
+                  var precipitation = 0;
+                  for (let i = 0; i < apiResponsee.length; i++) {
+                    temperature = temperature + (apiResponsee[i].temp.mean);
+                    humidity = (humidity + (apiResponsee[i].humidity.mean));
+                    precipitation = precipitation + (apiResponsee[i].precipitation.max);
+                  };
+                  
+
+                  const data = {
+                    nitrogen: nitrogen,
+                    potassium: potassium ,
+                    phosphorius: phosphorius,
+                    temperature: (temperature/366)-(273.15),
+                    humidity: humidity/366,
+                    ph: ph,
+                    rainfall: precipitation,
+                  };
+
+                  const res =  await axios.post(`${apiLink}`, data );
+                  console.log(data);
+                  console.log(res.data.prediction);
+                  setPrediction(res.data.prediction);
+                  console.log(prediction);
+                  res.data.prediction ? setLoading(false) : setLoading(true);
+
+
+
+                  
+             }
+             catch(error) {
+                console.log(error);
+                setDataInvalid(true);
+                setLoading(false);
 
                };
-               console.log(city + ", " + region + ", " + country );
-          }).catch(error => {
-             console.log(error);
-             setCoordinatesInvalid(true);
-            });
+
+           
+        
+            
     };
 
     if (location){
-      axios.get('https://api.opencagedat.com/geocode/v1/json?key=&q='+location+'&pretty=1&no_annotations=1')
-         .then(response => {
-               const apiResponse = response.data;
-               console.log(apiResponse.results[0].components.city + ", " + apiResponse.results[0].components.region + ", " + apiResponse.results[0].components.country );
-          }).catch(error => {
-             console.log(error);
-             setLocationInvalid(true);
+      try {
+      const res = await axios.get('http://api.openweathermap.org/geo/1.0/direct?q='+location+'&limit=5&appid=1d881679d39500011fae255732d17344')
+      const apiResponse = res.data;
+      setLocationByCoords(location);
+      console.log(apiResponse[0].lat,apiResponse[0].lon);
 
-            });
+      const response = await axios.get('http://history.openweathermap.org/data/2.5/aggregated/year?lat='+apiResponse[0].lat+'&lon='+apiResponse[0].lon+'&units=metric&appid=1d881679d39500011fae255732d17344')
+      const apiResponsee = response.data.result;
+                  var temperature = 0;
+                  var humidity = 0;
+                  var precipitation = 0;
+                  for (let i = 0; i < apiResponsee.length; i++) {
+                    temperature = temperature + (apiResponsee[i].temp.mean);
+                    humidity = (humidity + (apiResponsee[i].humidity.mean));
+                    precipitation = precipitation + (apiResponsee[i].precipitation.max);
+                  };
+                  
+
+                  const data = {
+                    nitrogen: nitrogen,
+                    potassium: potassium ,
+                    phosphorius: phosphorius,
+                    temperature: (temperature/366)-(273.15),
+                    humidity: humidity/366,
+                    ph: ph,
+                    rainfall: precipitation,
+                  };
+
+                  const ress =  await axios.post(`${apiLink}`, data );
+                  console.log(data);
+                  console.log(ress.data.prediction);
+                  setPrediction(ress.data.prediction);
+                  
+                  ress.data.prediction ? setLoading(false) : setLoading(true);
+
+
+       }  
+       catch(error) {
+             console.log(error);
+             setDataInvalid(true);
+             setLoading(false);
+
+            };               
     }
   
   
@@ -229,7 +353,24 @@ export default function UseCoordinates() {
     
 
 
-    <Button variant="contained" size="large" style={{marginTop:"10.5px"}} onClick={handlePredict}  classname="predictButton">Predict</Button>
+    <Button variant="contained" size="large" style={{marginTop:"10.5px"}} onClick={handlePredict}  classname="predictButton">{loading ?  <CircularProgress color="inherit" /> : 'Predict'}</Button>
+    {
+              prediction?
+              <> 
+              <center>
+               <br />
+               <div style={{padding:"6px",textAlign:"center"}}>
+              <h6><span style={{backgroundColor:"white",padding:"8px",borderRadius:"9px",color:"#666a6d"}}> You are predicting for the location of : {locationByCoords}</span></h6>
+              </div>
+              <Result result={prediction}/>
+             </center>
+             </>
+                
+              
+              :null 
+              
+              }
+    
     {
               
               locationInvalid ?
@@ -239,11 +380,12 @@ export default function UseCoordinates() {
               :null}
     {
               
-              coordinatesInvalid ?
-              <Alert severity="warning" style={{marginTop:"40px"}}>Please enter valid coordinates!</Alert>
+              dataInvalid ?
+              <Alert severity="warning" style={{marginTop:"40px"}}>Something went wrong, Please enter valid data!</Alert>
               
               
               :null}
+    
             </center>
             
         </div>
