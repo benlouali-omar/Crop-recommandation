@@ -27,7 +27,7 @@ export class UseMapp extends Component {
       showingInfoWindow: false,
       activeMarker: {},
       selectedPlace: {},
-      longitude: -6.8498129,
+      longitude: -6.8498129, //Rabat
       latitude:33.9715904,
       nitrogen : null,
       potassium:null,

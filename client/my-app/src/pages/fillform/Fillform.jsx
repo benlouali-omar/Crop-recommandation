@@ -55,7 +55,7 @@ export default function Fillform() {
             ph: ph,
             rainfall: rainfall,
           };
-        //console.log(data);
+        
         if (nitrogen === "" || potassium === "" || phosphorius=== ""|| temperature=== ""|| humidity=== "" || ph=== "" ||rainfall=== ""){
         
           setnotallFilled(true);

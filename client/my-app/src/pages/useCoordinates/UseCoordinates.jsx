@@ -15,7 +15,7 @@ import PlacesAutocomplete, {
 } from "react-places-autocomplete";
 import { predictCall } from '../../predict';
 
-// import { Map, GoogleApiWrapper } from 'google-maps-react';
+
 
 export default function UseCoordinates() {
     
@@ -86,18 +86,12 @@ export default function UseCoordinates() {
              const city = apiResponse[0].name;
              const region = apiResponse[0].state;
              const country = apiResponse[0].country;
-            //  if (!country && !city && !region) {
-            //      //setCoordinatesInvalid(true);
-            //      //setLocationByCoords('');
-            //      //setPrediction('');
-            //      setDataInvalid(true);
-
-            //  };
+            
              setLocationByCoords(`${city},${region? `${region},` : ''} ${country}`);
              console.log('location :'+city,country);
         }).catch(error => {
            console.log(error);
-           //setLocationInvalid(true);
+           
            
           });
         
